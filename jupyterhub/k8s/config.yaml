@@ -1,0 +1,51 @@
+# This file can update the JupyterHub Helm chart's default configuration values.
+#
+# For reference see the configuration reference and default values, but make
+# sure to refer to the Helm chart version of interest to you!
+#
+# Introduction to YAML:     https://www.youtube.com/watch?v=cdLNKUoMc6c
+# Chart config reference:   https://zero-to-jupyterhub.readthedocs.io/en/stable/resources/reference.html
+# Chart default values:     https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/HEAD/jupyterhub/values.yaml
+# Available chart versions: https://jupyterhub.github.io/helm-chart/
+#
+proxy:
+  # only the proxy's secretToken is required
+  secretToken: 2a0e5bf9063df9cc4ab9029c5a64e6238caaa85493bd71a7a0ec9ce2236e3521
+
+singleuser:
+  defaultUrl: "/lab"
+  memory:
+    limit: 1G
+    guarantee: 1G
+  cpu:
+    limit: .5
+    guarantee: .5
+
+  # Defines the default image
+  image:
+    name: jupyter/minimal-notebook
+    tag: 2343e33dec46
+  profileList:
+    - display_name: "Minimal environment"
+      description: "To avoid too much bells and whistles: Python."
+      default: true
+    - display_name: "Datascience environment"
+      description: "If you want the additional bells and whistles: Python, R, and Julia."
+      kubespawner_override:
+        image: jupyter/datascience-notebook:2343e33dec46
+    - display_name: "Spark environment"
+      description: "The Jupyter Stacks spark image!"
+      kubespawner_override:
+        image: jupyter/all-spark-notebook:2343e33dec46
+    - display_name: "Learning Data Science"
+      description: "Datascience Environment with Sample Notebooks"
+      kubespawner_override:
+        image: jupyter/datascience-notebook:2343e33dec46
+        lifecycle_hooks:
+          postStart:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - >
+                  gitpuller https://github.com/data-8/materials-fa17 master materials-fa;
